@@ -1,1 +1,22 @@
-[]
+[
+  {
+    "name": "aabbccdd",
+    "wish": "1111",
+    "timestamp": "2026-10-18T08:35:13.152Z"
+  },
+  {
+    "name": "aabbccdd",
+    "wish": "22",
+    "timestamp": "2026-10-18T08:35:25.214Z"
+  },
+  {
+    "name": "是是是",
+    "wish": "说是的",
+    "timestamp": "2026-10-18T08:57:15.030Z"
+  },
+  {
+    "name": "发方",
+    "wish": "l'l'llll",
+    "timestamp": "2026-10-18T09:57:29.769Z"
+  }
+]
