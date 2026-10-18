@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>公司祝福语收集</title>
+  <style>
+    :root {
+      --primary-color: #0066ff;
+      --primary-hover: #0052cc;
+      --bg-color: #f4f7f9;
+      --card-bg: #ffffff;
+      --text-main: #333333;
+      --text-sub: #666666;
+      --border-color: #e1e8ed;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      box-sizing: border-box;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 480px;
+      background: var(--card-bg);
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+      box-sizing: border-box;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .header h2 {
+      margin: 0 0 8px 0;
+      color: var(--text-main);
+      font-size: 24px;
+    }
+
+    .header p {
+      margin: 0;
+      color: var(--text-sub);
+      font-size: 14px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      font-size: 14px;
+      color: var(--text-main);
+    }
+
+    input[type="text"], textarea {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      box-sizing: border-box;
+      font-size: 15px;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      background-color: #fafbfc;
+    }
+
+    input[type="text"]:focus, textarea:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      background-color: #fff;
+      box-shadow: 0 0 0 3px rgba(0, 102, 255, 0.15);
+    }
+
+    textarea {
+      height: 120px;
+      resize: vertical;
+    }
+
+    button {
+      width: 100%;
+      padding: 14px;
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.2s, transform 0.1s;
+    }
+
+    button:hover {
+      background-color: var(--primary-hover);
+    }
+
+    button:active {
+      transform: scale(0.98);
+    }
+
+    button:disabled {
+      background-color: #b0c4de;
+      cursor: not-allowed;
+    }
+
+    .msg {
+      margin-top: 16px;
+      text-align: center;
+      font-size: 14px;
+      font-weight: 500;
+      min-height: 20px;
+    }
+
+    .success {
+      color: #28a745;
+    }
+
+    .error {
+      color: #dc3545;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <h2>🎉 填写祝福语</h2>
+    <p>留下您的美好祝愿，传递温暖与力量</p>
+  </div>
+
+  <form id="wishForm">
+    <div class="form-group">
+      <label for="name">您的姓名 / 部门：</label>
+      <input type="text" id="name" required placeholder="例如：张三（研发部）">
+    </div>
+    
+    <div class="form-group">
+      <label for="wish">祝福语内容：</label>
+      <textarea id="wish" required placeholder="在此输入您对公司或团队的祝福..."></textarea>
+    </div>
+
+    <button type="submit" id="submitBtn">提交祝福</button>
+  </form>
+
+  <div id="statusMsg" class="msg"></div>
+</div>
+
+<script>
+  // ⚠️【重要修改处】请将下面引号中的链接替换为你部署好的 Cloudflare Worker 实际访问网址
+  const WORKER_URL = "https://your-worker-subdomain.workers.dev";
+
+  const form = document.getElementById('wishForm');
+  const btn = document.getElementById('submitBtn');
+  const msg = document.getElementById('statusMsg');
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const name = document.getElementById('name').value.trim();
+    const wish = document.getElementById('wish').value.trim();
+
+    if (!name || !wish) {
+      msg.className = "msg error";
+      msg.innerText = "❌ 姓名和祝福语不能为空！";
+      return;
+    }
+
+    // 禁用按钮防重复提交
+    btn.disabled = true;
+    btn.innerText = "提交中...";
+    msg.innerText = "";
+
+    try {
+      const response = await fetch(WORKER_URL, {
+        method: "POST",
+        headers: { 
+          "Content-Type": "application/json" 
+        },
+        body: JSON.stringify({ name, wish })
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        msg.className = "msg success";
+        msg.innerText = "❤️ " + (result.message || "祝福语提交成功！感谢您的参与。");
+        form.reset(); // 清空表单
+      } else {
+        throw new Error(result.error || "服务器开小差了，请稍后重试");
+      }
+    } catch (err) {
+      msg.className = "msg error";
+      msg.innerText = "❌ 提交失败: " + err.message;
+    } finally {
+      btn.disabled = false;
+      btn.innerText = "提交祝福";
+    }
+  });
+</script>
+
+</body>
+</html>
